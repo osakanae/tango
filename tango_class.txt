@@ -1,0 +1,124 @@
+@startuml
+interface UserDetailsService {
+    + loadUserByUsername(String username): UserDetails
+}
+
+class CustomUserDetailsService implements UserDetailsService {
+    - UserRepository userRepository
+
+    + loadUserByUsername(String username): UserDetails
+}
+
+class UserRepository {
+    + findByUsername(String username): Optional<User>
+}
+
+interface UserDetails {
+    + getAuthorities(): Collection<GrantedAuthority>
+    + getPassword(): String
+    + getUsername(): String
+    + isAccountNonExpired(): boolean
+    + isAccountNonLocked(): boolean
+    + isCredentialsNonExpired(): boolean
+    + isEnabled(): boolean
+}
+
+class User implements UserDetails{
+    - Long id                           
+    - String username                   
+    - String email                      
+    - String password                   
+    - boolean enabled                   
+    - String roles
+    - LocalDateTime createdAt           
+    - LocalDateTime deletedAt           
+
+    // 各種セッター・ゲッター
+    + getAuthorities(): Collection<GrantedAuthority>
+    + isAccountNonExpired(): boolean
+    + isAccountNonLocked(): boolean
+    + isCredentialsNonExpired(): boolean
+    + isEnabled(): boolean
+}
+
+class Cardbook {
+    - Long id
+    - Long userId
+    - String name
+    - String description
+    - LocalDateTime createdAt
+    - LocalDateTime updatedAt
+    - LocalDateTime deletedAt
+
+    + addCard(card: Card): void
+    + removeCard(cardId: Long): void
+    + getCards(): List<Card>
+    + getCardCount(): int
+    + updateDetails(name: String, description: String): void
+}
+
+class Card {
+    - Long id
+    - Long cardbookId
+    - String term
+    - String definition
+    - int memorizationLevel
+    - LocalDateTime createdAt
+    - LocalDateTime updatedAt
+
+    + updateTerm(term: String): void
+    + updateDefinition(definition: String): void
+    + updateMemorizationLevel(level: int): void
+}
+
+class DeletedCardbook {
+    - Long id
+    - Long cardbookId
+    - LocalDateTime deletedAt
+    - LocalDateTime restoreDeadline
+
+    + restoreToCardBook(): Cardbook
+    + deleteCompletely(): void
+}
+
+class TestHistory {
+    - Long id
+    - Long userId
+    - Long cardbookId
+    - int correctAnswers
+    - int totalQuestions
+    - LocalDateTime createdAt
+
+    // 各種ゲッター
+}
+
+class Inquiry {
+    - Long id
+    - Long userId
+    - String type
+    - String message
+    - LocalDateTime created_at
+
+    // 各種ゲッター・セッター
+}
+
+class ImportHistory {
+    - Long id
+    - Long cardbookId
+    - Long userId
+    - String fileName
+    - Boolean isSuccess
+    - int errorRows
+    - LocalDateTime createdAt
+
+    // 各種ゲッター・セッター
+}
+
+User "1" --> "0..*" Cardbook
+User "1" --> "0..*" Inquiry
+Cardbook "1" --> "0..*" Card
+Cardbook "1" -- "1" DeletedCardbook
+Cardbook "1" --> "0..*" TestHistory
+Cardbook "1" --> "0..*" ImportHistory
+
+@enduml
