@@ -1,118 +1,188 @@
 @startuml
-interface UserDetailsService {
-    + loadUserByUsername(String username): UserDetails
+package user {
+    interface UserDetails {
+        + getAuthorities(): Collection<GrantedAuthority>
+        + getPassword(): String
+        + getUsername(): String
+        + isAccountNonExpired(): boolean
+        + isAccountNonLocked(): boolean
+        + isCredentialsNonExpired(): boolean
+        + isEnabled(): boolean
+    }
+
+    class User implements UserDetails{
+        - Long id                           
+        - String username                   
+        - String email                      
+        - String password                   
+        - boolean enabled                   
+        - String roles
+        - LocalDateTime createdAt           
+        - LocalDateTime deletedAt           
+
+        + Getter/Setter
+        + getAuthorities(): Collection<GrantedAuthority>
+        + isAccountNonExpired(): boolean
+        + isAccountNonLocked(): boolean
+        + isCredentialsNonExpired(): boolean
+        + isEnabled(): boolean
+    }
+
+    class UserController {
+        - UserService userService
+
+        + login(UserLoginDTO loginDTO): ResponseEntity<LoginResponseDTO>
+        + logout(): ResponseEntity<String>
+        + registerUser(UserDTO userDTO): ResponseEntity<RegisterResponseDTO>
+        + deleteUser(Long userId): ResponseEntity<String>
+        + getUser(Long id): ResponseEntity<UserResponseDTO>
+    }
+
+    class UserLoginDTO {
+        - String email
+        - String password
+
+        + Getter/Setter
+    }
+
+    class LoginResponseDTO {
+        - String token
+        - String message
+
+        + Getter/Setter
+    }
+
+    class UserDTO {
+        - String username
+        - String email
+        - String password
+
+        + Getter/Setter
+    }
+
+    class RegisterResponseDTO {
+        - Long userId
+        - String message
+        - String username
+
+        + Getter/Setter
+    }
+
+    class UserResponseDTO {
+        - Long userId
+        - String username
+        - String email
+
+        + Getter/Setter
+    }
+    class UserService {
+        - UserRepository userRepository
+
+        + authenticate(UserLoginDTO loginDTO): LoginResponseDTO
+        + registerUser(UserDTO userDTO): RegisterResponseDTO
+        + deleteUser(Long userId): void
+    }
+
+    interface UserDetailsService {
+        + loadUserByEmail(String email): UserDetails
+    }
+
+    class CustomUserDetailsService implements UserDetailsService {
+        - UserRepository userRepository
+
+        + loadUserByEmail(String email): UserDetails
+    }
+
+    class UserRepository {
+        + findByEmail(String email): Optional<User>
+    }
 }
 
-class CustomUserDetailsService implements UserDetailsService {
-    - UserRepository userRepository
+package cardbook {
+    class Cardbook {
+        - Long id
+        - Long userId
+        - String name
+        - String description
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+        - LocalDateTime deletedAt
 
-    + loadUserByUsername(String username): UserDetails
+        + addCard(card: Card): void
+        + removeCard(cardId: Long): void
+        + getCards(): List<Card>
+        + getCardCount(): int
+        + updateDetails(name: String, description: String): void
+    }
 }
 
-class UserRepository {
-    + findByUsername(String username): Optional<User>
+package card {
+    class Card {
+        - Long id
+        - Long cardbookId
+        - String term
+        - String definition
+        - int memorizationLevel
+        - LocalDateTime createdAt
+        - LocalDateTime updatedAt
+
+        + updateTerm(term: String): void
+        + updateDefinition(definition: String): void
+        + updateMemorizationLevel(level: int): void
+    }
 }
 
-interface UserDetails {
-    + getAuthorities(): Collection<GrantedAuthority>
-    + getPassword(): String
-    + getUsername(): String
-    + isAccountNonExpired(): boolean
-    + isAccountNonLocked(): boolean
-    + isCredentialsNonExpired(): boolean
-    + isEnabled(): boolean
+package deletedCardbook {
+    class DeletedCardbook {
+        - Long id
+        - Long cardbookId
+        - LocalDateTime deletedAt
+        - LocalDateTime restoreDeadline
+
+        + restoreToCardBook(): Cardbook
+        + deleteCompletely(): void
+    }
 }
 
-class User implements UserDetails{
-    - Long id                           
-    - String username                   
-    - String email                      
-    - String password                   
-    - boolean enabled                   
-    - String roles
-    - LocalDateTime createdAt           
-    - LocalDateTime deletedAt           
+package testHistory {
+    class TestHistory {
+        - Long id
+        - Long userId
+        - Long cardbookId
+        - int correctAnswers
+        - int totalQuestions
+        - LocalDateTime createdAt
 
-    // 各種セッター・ゲッター
-    + getAuthorities(): Collection<GrantedAuthority>
-    + isAccountNonExpired(): boolean
-    + isAccountNonLocked(): boolean
-    + isCredentialsNonExpired(): boolean
-    + isEnabled(): boolean
+        + Getter/Setter
+    }
 }
 
-class Cardbook {
-    - Long id
-    - Long userId
-    - String name
-    - String description
-    - LocalDateTime createdAt
-    - LocalDateTime updatedAt
-    - LocalDateTime deletedAt
+package inquiry {
+    class Inquiry {
+        - Long id
+        - Long userId
+        - String type
+        - String message
+        - LocalDateTime created_at
 
-    + addCard(card: Card): void
-    + removeCard(cardId: Long): void
-    + getCards(): List<Card>
-    + getCardCount(): int
-    + updateDetails(name: String, description: String): void
+        + Getter/Setter
+    }
 }
 
-class Card {
-    - Long id
-    - Long cardbookId
-    - String term
-    - String definition
-    - int memorizationLevel
-    - LocalDateTime createdAt
-    - LocalDateTime updatedAt
+package importHistory {
+    class ImportHistory {
+        - Long id
+        - Long cardbookId
+        - Long userId
+        - String fileName
+        - Boolean isSuccess
+        - int errorRows
+        - LocalDateTime createdAt
 
-    + updateTerm(term: String): void
-    + updateDefinition(definition: String): void
-    + updateMemorizationLevel(level: int): void
+        + Getter/Setter
+    }
 }
 
-class DeletedCardbook {
-    - Long id
-    - Long cardbookId
-    - LocalDateTime deletedAt
-    - LocalDateTime restoreDeadline
-
-    + restoreToCardBook(): Cardbook
-    + deleteCompletely(): void
-}
-
-class TestHistory {
-    - Long id
-    - Long userId
-    - Long cardbookId
-    - int correctAnswers
-    - int totalQuestions
-    - LocalDateTime createdAt
-
-    // 各種ゲッター
-}
-
-class Inquiry {
-    - Long id
-    - Long userId
-    - String type
-    - String message
-    - LocalDateTime created_at
-
-    // 各種ゲッター・セッター
-}
-
-class ImportHistory {
-    - Long id
-    - Long cardbookId
-    - Long userId
-    - String fileName
-    - Boolean isSuccess
-    - int errorRows
-    - LocalDateTime createdAt
-
-    // 各種ゲッター・セッター
-}
 
 User "1" --> "0..*" Cardbook
 User "1" --> "0..*" Inquiry
@@ -120,5 +190,16 @@ Cardbook "1" --> "0..*" Card
 Cardbook "1" -- "1" DeletedCardbook
 Cardbook "1" --> "0..*" TestHistory
 Cardbook "1" --> "0..*" ImportHistory
+
+UserController --> UserService
+UserService --> UserRepository
+CustomUserDetailsService --> UserRepository
+UserController --> UserLoginDTO
+UserController --> LoginResponseDTO
+UserController --> RegisterResponseDTO
+UserController --> UserResponseDTO
+UserService --> UserLoginDTO
+UserService --> UserDTO
+UserService --> RegisterResponseDTO
 
 @enduml
