@@ -11,12 +11,12 @@ package user {
     }
 
     class User implements UserDetails{
-        - Long id                           
+        - Long id
         - String username                   
         - String email                      
         - String password                   
         - boolean enabled                   
-        - String roles
+        - Set<String> role
         - LocalDateTime createdAt           
         - LocalDateTime deletedAt           
 
@@ -75,6 +75,7 @@ package user {
 
         + Getter/Setter
     }
+
     class UserService {
         - UserRepository userRepository
 
@@ -84,17 +85,19 @@ package user {
     }
 
     interface UserDetailsService {
-        + loadUserByEmail(String email): UserDetails
+        + loadUserByUsername(String username): UserDetails
     }
 
     class CustomUserDetailsService implements UserDetailsService {
         - UserRepository userRepository
 
-        + loadUserByEmail(String email): UserDetails
+        + loadUserByUsername(String username): UserDetails
     }
 
     class UserRepository {
+        + findByUsername(String username): Optional<User>
         + findByEmail(String email): Optional<User>
+        + findByUsernameOrEmail(String username, String email): Optional<User>
     }
 }
 
@@ -108,11 +111,39 @@ package cardbook {
         - LocalDateTime updatedAt
         - LocalDateTime deletedAt
 
-        + addCard(card: Card): void
-        + removeCard(cardId: Long): void
-        + getCards(): List<Card>
-        + getCardCount(): int
-        + updateDetails(name: String, description: String): void
+        + Getter/Setter
+    }
+
+    class CardbookController {
+        - CardbookService cardbookService
+
+        + getCards(Long cardbookId): List<Card>
+        + findCardbooksByUserId(userId: Long): List<Cardbook>
+        + getCardCount(Long cardbookId): int
+        + registerCardbook(userId: Long, name: String, description: String): Cardbook
+        + updateCardbookDetails(Long cardbookId, name: String, description: String): void
+        + deleteCardbook(cardbookId: Long): void
+    }
+
+    class CardbookService {
+        - CardbookRepository cardbookRepository
+
+        + getCards(Long cardbookId): List<Card>
+        + findCardbooksByUserId(userId: Long): List<Cardbook>
+        + getCardCount(Long cardbookId): int
+        + registerCardbook(userId: Long, name: String, description: String): Cardbook
+        + updateCardbookDetails(Long cardbookId, name: String, description: String): void
+        + deleteCardbook(cardbookId: Long): void
+    }
+
+    class CardbookRepository {
+        + findById(Long cardbookId): Optional<Cardbook>
+        + findByUserId(Long userId): List<Cardbook>
+        + saveCardbook(Cardbook cardbook): Cardbook
+        + deleteCardbook(Cardbook cardbook): void
+    }
+
+    class CardbookNotFoundException extends Exception{
     }
 }
 
@@ -201,5 +232,8 @@ UserController --> UserResponseDTO
 UserService --> UserLoginDTO
 UserService --> UserDTO
 UserService --> RegisterResponseDTO
+
+CardbookController --> CardbookService
+CardbookService --> CardbookRepository
 
 @enduml
