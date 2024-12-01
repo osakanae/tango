@@ -12,13 +12,13 @@ package user {
 
     class User implements UserDetails{
         - Long id
-        - String username                   
-        - String email                      
-        - String password                   
-        - boolean enabled                   
+        - String username
+        - String emai
+        - String password
+        - boolean enabled
         - Set<String> role
-        - LocalDateTime createdAt           
-        - LocalDateTime deletedAt           
+        - LocalDateTime createdAt
+        - LocalDateTime deletedAt
 
         + Getter/Setter
         + getAuthorities(): Collection<GrantedAuthority>
@@ -157,9 +157,30 @@ package card {
         - LocalDateTime createdAt
         - LocalDateTime updatedAt
 
-        + updateTerm(term: String): void
-        + updateDefinition(definition: String): void
-        + updateMemorizationLevel(level: int): void
+        + Getter/Setter
+    }
+
+    class CardController {
+        + updateTerm(Long cardId, String newTerm): void
+        + updateDefinition(Long cardId, String newDefenition): void
+        + updateMemorizationLevel(Long cardId, int newLevel): void
+    }
+
+    class CardService {
+        + updateTerm(Long cardId, String newTerm): void
+        + updateDefinition(Long cardId, String newDefenition): void
+        + updateMemorizationLevel(Long cardId, int newLevel): void
+    }
+
+    class CardRepository {
+        + findById(Long cardId): Card
+        + findByCardbookId(Long cardbookId): List<Card>
+        + updateTerm(Long cardId, String newTerm): void
+        + updateDefinition(Long cardId, String newDefenition): void
+        + updateMemorizationLevel(Long cardId, int newLevel): void
+    }
+
+    class CardNotFoundException extends Exception{
     }
 }
 
@@ -170,21 +191,25 @@ package deletedCardbook {
         - LocalDateTime deletedAt
         - LocalDateTime restoreDeadline
 
-        + restoreToCardBook(): Cardbook
-        + deleteCompletely(): void
-    }
-}
-
-package testHistory {
-    class TestHistory {
-        - Long id
-        - Long userId
-        - Long cardbookId
-        - int correctAnswers
-        - int totalQuestions
-        - LocalDateTime createdAt
-
         + Getter/Setter
+    }
+
+    class DeletedCardbookController {
+        + restoreToCarbook(Long DeletedCardbookId): Cardbook
+        + deleteCompletely(Long DeletedCardbookId): void
+        + listDeletedCardbooksByUser(Long userId): List<DeletedCardbook> // ユーザーごとの削除済みカードブックを取得
+    }
+
+    class DeletedCardbookService {
+        + restoreToCardbook(Long DeletedCardbookId): Cardbook
+        + deleteCompletely(Long DeletedCardbookId): void
+        + findDeletedCardbooksByUser(Long userId): List<DeletedCardbook> // ユーザーごとの削除済みカードブックを取得するロジックを処理
+    }
+
+    class DeletedCardbookRepository {
+        + findById(Long DeletedCardbookId): Optional<Cardbook>
+        + findByUserId(Long userId): List<DeletedCardbook>
+        + deleteById(Long deletedCardbookId): void // IDを指定してレコードを完全削除
     }
 }
 
@@ -194,13 +219,13 @@ package inquiry {
         - Long userId
         - String type
         - String message
-        - LocalDateTime created_at
+        - LocalDateTime createdAt
 
         + Getter/Setter
     }
 }
 
-package importHistory {
+package import {
     class ImportHistory {
         - Long id
         - Long cardbookId
@@ -212,6 +237,10 @@ package importHistory {
 
         + Getter/Setter
     }
+}
+
+package search {
+
 }
 
 
