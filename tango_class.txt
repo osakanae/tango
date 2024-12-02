@@ -164,12 +164,14 @@ package card {
         + updateTerm(Long cardId, String newTerm): void
         + updateDefinition(Long cardId, String newDefenition): void
         + updateMemorizationLevel(Long cardId, int newLevel): void
+        + searchCards(String keyword): List<Card>
     }
 
     class CardService {
         + updateTerm(Long cardId, String newTerm): void
         + updateDefinition(Long cardId, String newDefenition): void
         + updateMemorizationLevel(Long cardId, int newLevel): void
+        + searchCards(String keyword): List<Card>
     }
 
     class CardRepository {
@@ -178,6 +180,7 @@ package card {
         + updateTerm(Long cardId, String newTerm): void
         + updateDefinition(Long cardId, String newDefenition): void
         + updateMemorizationLevel(Long cardId, int newLevel): void
+        + searchCards(String keyword): List<Card>
     }
 
     class CardNotFoundException extends Exception{
@@ -219,28 +222,67 @@ package inquiry {
         - Long userId
         - String type
         - String message
+        - String status  // 問い合わせの状態 ("OPEN", "IN_PROGRESS", "CLOSED" など)
+        - String adminResponse // 管理者からの返信
         - LocalDateTime createdAt
+        - LocalDateTime updatedAt
 
         + Getter/Setter
     }
-}
 
-package import {
-    class ImportHistory {
-        - Long id
-        - Long cardbookId
-        - Long userId
-        - String fileName
-        - Boolean isSuccess
-        - int errorRows
-        - LocalDateTime createdAt
+    class InquiryController {
+        + createInquiry(Long userId, String subject, String message): Inquiry // 新規問い合わせを作成
+        + getInquiriesByUser(Long userId): List<Inquiry> // ユーザーの全問い合わせを取得
+        + updateInquiryStatus(Long inquiryId, String status): void // 問い合わせの状態を更新
+        + respondToInquiry(Long inquiryId, String response): void // 問い合わせに返信
+    }
 
-        + Getter/Setter
+    class InquiryService {
+        + createInquiry(Long userId, String subject, String message): Inquiry // 問い合わせを作成
+        + getInquiriesByUser(Long userId): List<Inquiry> // ユーザーごとの問い合わせを取得
+        + updateInquiryStatus(Long inquiryId, String status): void // 問い合わせの状態を更新
+        + respondToInquiry(Long inquiryId, String response): void // 問い合わせに返信
+    }
+
+    class InquiryRepository {
+        + save(Inquiry inquiry): Inquiry // 問い合わせを保存
+        + findById(Long inquiryId): Optional<Inquiry> // 問い合わせをIDで取得
+        + findByUserId(Long userId): List<Inquiry> // ユーザーごとの問い合わせを取得
+        + update(Inquiry inquiry): void // 問い合わせを更新
     }
 }
 
-package search {
+package csv {
+    class CSVImport {
+        - Long id // インポートの一意の識別子
+        - Long cardbookId // インポートを行ったカードブックのID
+        - Long userId // インポートを行ったユーザーのID
+        - String fileName // アップロードされたファイル名
+        - String status // インポートの状態 ("SUCCESS", "FAILED")
+        - String errorMessage // エラーが発生した場合のメッセージ
+        - LocalDateTime createdAt // インポートの開始時刻
+        - LocalDateTime completedAt // インポートの完了時刻
 
+        + Getter/Setter
+    }
+
+    class CSVController {
+        + importCSV(MultipartFile file, Long cardbookId): CSVImport // CSVファイルをインポート
+        + exportCSV(Long userId): ResponseEntity<Resource> // データをCSVとしてエクスポート
+        + getImportHistory(Long userId): List<CSVImport> // インポート履歴を取得
+    }
+
+    class CSVService {
+        + importCSV(MultipartFile file, Long cardbookId): CSVImport // インポート処理を実行
+        + exportCSV(Long cardbookId): Resource // エクスポート処理を実行
+        + getImportHistory(Long userId): List<CSVImport> // インポート履歴を取得
+    }
+
+    class CSVRepository {
+        + saveImportHistory(CSVImport csvImport): CSVImport // インポート履歴を保存
+        + findImportHistoryByUserId(Long userId): List<CSVImport> // ユーザーごとのインポート履歴を取得
+        + findByCardbookId(Long cardbookId): List<Card> // 単語帳IDでカードを取得
+    }
 }
 
 
