@@ -1,0 +1,51 @@
+# OASのバージョン
+openapi: 3.0.0
+# APIの一般情報
+info:
+  title: Tango API
+  description: Web単語帳アプリTangoのAPIドキュメントです。
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  # リソース
+  /cards: # エンドポイント
+    get: #アクションのHTTPメソッド
+      summary: すべてのカードを取得
+      description: このエンドポイントは、ログインしているユーザーが登録した全てのカードを取得します。
+      # アクションのレスポンスリスト
+      responses:
+        # アクションのレスポンス：HTTPステータス200 OK
+        "200":
+          description: カード一覧の取得に成功しました。
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Card"
+        "401":
+          description: 認証が必要です。ログインしてください。
+
+components:
+  schemas: # 再利用可能なスキーマ
+    Card:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: カードの一意の識別子
+          example: 1
+        term:
+          type: string
+          description: 単語やフレーズなど
+          example: "programming"
+        definition:
+          type: string
+          description: 単語の説明または定義
+          example: "The process of creating software."
+        memorizationLevel:
+          type: integer
+          description: 暗記レベル（0：未暗記, 1：部分暗記, 2：暗記済）
+          example: 2
