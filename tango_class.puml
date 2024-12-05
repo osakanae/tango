@@ -1,4 +1,4 @@
-@startuml
+@startuml tango_class
 package user {
     interface UserDetails {
         + getAuthorities(): Collection<GrantedAuthority>
@@ -199,20 +199,20 @@ package deletedCardbook {
 
     class DeletedCardbookController {
         + restoreToCarbook(Long DeletedCardbookId): Cardbook
-        + deleteCompletely(Long DeletedCardbookId): void
+        + deleteCompletely(Long DeletedCardbookId, LocalDateTime deadline): void
         + listDeletedCardbooksByUser(Long userId): List<DeletedCardbook> // ユーザーごとの削除済みカードブックを取得
     }
 
     class DeletedCardbookService {
         + restoreToCardbook(Long DeletedCardbookId): Cardbook
-        + deleteCompletely(Long DeletedCardbookId): void
+        + deleteCompletely(Long DeletedCardbookId, LocalDateTime deadline): void
         + findDeletedCardbooksByUser(Long userId): List<DeletedCardbook> // ユーザーごとの削除済みカードブックを取得するロジックを処理
     }
 
     class DeletedCardbookRepository {
         + findById(Long DeletedCardbookId): Optional<Cardbook>
         + findByUserId(Long userId): List<DeletedCardbook>
-        + deleteById(Long deletedCardbookId): void // IDを指定してレコードを完全削除
+        + deleteById(Long deletedCardbookId, LocalDateTime deadline): void // IDを指定してレコードを完全削除
     }
 }
 

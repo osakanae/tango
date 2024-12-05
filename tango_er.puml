@@ -1,0 +1,67 @@
+@startuml tango_er
+entity User {
+    + id : BIGINT [PK]
+    + username : VARCHAR(255)
+    + email : VARCHAR(255)
+    + password : VARCHAR(255)
+    + enabled : BOOLEAN
+    + created_at : TIMESTAMP
+    + deleted_at : TIMESTAMP
+}
+
+entity Role {
+    + id : BIGINT [PK]
+    + user_id : BIGINT [FK]
+    + role : VARCHAR(255)
+}
+
+entity Cardbook {
+    + id BIGINT [PK]
+    + user_id : BIGINT [FK]
+    + name : VARCHAR(255)
+    + description : VARCHAR(1000)
+    + created_at : TIMESTAMP
+    + updated_at : TIMESTAMP
+    + deleted_at : TIMESTAMP
+    + restore_deadline : TIMESTAMP
+}
+
+entity Card {
+    + id BIGINT[PK]
+    + cardbookId BIGINT [FK]
+    + term VARCHAR(255)
+    + definition TEXT
+    + memorizationLevel INTEGER
+    + created_at TIMESTAMP
+    + updated_at TIMESTAMP
+}
+
+entity Inquiry {
+    + id : BIGINT [PK]
+    + user_id : BIGINT [FK]
+    + type : VARCHAR(255)
+    + message : TEXT
+    + status : VARCHAR(50)
+    + admin_response : TEXT
+    + created_at : TIMESTAMP
+    + updated_at : TIMESTAMP
+}
+
+entity CSVImport {
+    + id : BIGINT [PK]
+    + cardbook_id : BIGINT [FK]
+    + user_id : BIGINT [FK]
+    + file_name : VARCHAR(255)
+    + status : VARCHAR(50)
+    + error_message : TEXT
+    + created_at : TIMESTAMP
+    + completed_at : TIMESTAMP
+}
+
+User ||--o{ Role : "has"
+User ||--o{ Cardbook : "has"
+Cardbook ||--o{ Card : "has"
+User ||--o{ Inquiry : "has"
+User ||--o{ CSVImport : "initiated by"
+Cardbook ||--o{ CSVImport : "imported into"
+@enduml
