@@ -9,7 +9,7 @@ servers:
   - url: http://localhost:8080
     description: Local development server
 paths:
-  /auth/register:
+  /api/auth/register:
     post:
       summary: 新規ユーザー登録
       description: Tangoアプリケーションに新しいユーザーを登録します。
@@ -41,7 +41,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /auth/login:
+  /api/auth/login:
     post:
       summary: ユーザのログイン
       description: ユーザーを認証し、今後のリクエストに使用するJWTトークンを返します。
@@ -67,7 +67,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /auth/logout:
+  /api/auth/logout:
     post:
       summary: ユーザーのログアウト
       description: 現在のユーザーをログアウトし、セッションまたはトークンを無効化します。
@@ -87,7 +87,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /users/{id}:
+  /api/users/{id}:
     get:
       summary: ユーザー情報の取得
       description: 指定されたIDでユーザーの情報を取得します。
@@ -113,13 +113,179 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
+  /api/cardbooks:
+    get:
+      summary: すべてのカードブックを取得
+      description: ログインしているユーザーが登録したすべてのカードブックを取得します。
+      tags:
+        - Cardbook
+      responses:
+        "200":
+          description: カードブック一覧の取得に成功しました。
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CardbookResponse"
+        "400":
+          description: 認証が必要です。ログインしてください。
+    post:
+      summary: カードブックを新規作成
+      description: 新しいカードブックを作成します。
+      tags:
+        - Cardbook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CardbookRequest"
+      responses:
+        "201":
+          description: カードブックが正常に作成されました。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CardbookResponse"
+        "400":
+          description: 入力データが無効です。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: サーバーエラーです。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/cardbooks/{id}:
+    put:
+      tags:
+        - Cardbook
+      summary: カードブックを更新
+      description: 指定したIDのカードブックを更新します。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 更新するカードブックのID。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: カードブックの新しい名前。
+                  example: "Updated Cardbook Name"
+                description:
+                  type: string
+                  description: カードブックの新しい説明。
+                  example: "This is the updated description for the cardbook."
+              required:
+                - name
+      responses:
+        "200":
+          description: カードブックの更新に成功しました。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: 更新されたカードブックのID。
+                    example: 1
+                  name:
+                    type: string
+                    description: 更新後のカードブックの名前。
+                    example: "Updated Cardbook Name"
+                  description:
+                    type: string
+                    description: 更新後のカードブックの説明。
+                    example: "This is the updated description for the cardbook."
+        "400":
+          description: 無効なリクエスト。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: エラーメッセージ。
+                    example: "Invalid ID or request body."
+        "404":
+          description: 指定したIDのカードブックが見つかりません。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: エラーメッセージ。
+                    example: "Cardbook not found."
+        "500":
+          description: サーバーエラー。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: エラーメッセージ。
+                    example: "Internal server error."
+    delete:
+      tags:
+        - Cardbook
+      summary: カードブックを削除済みステータスに移動
+      description: 指定したIDのカードブックを削除済みステータスに変更します。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 削除するカードブックのID。
+      responses:
+        "200":
+          description: カードブックの削除に成功しました。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: 削除されたカードブックのID。
+                    example: 1
+        "500":
+          description: サーバーエラー。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: エラーメッセージ。
+                    example: "Internal server error."
+
   /api/cards: # エンドポイント
     get: #アクションのHTTPメソッド
       summary: すべてのカードを取得
       description: ログインしているユーザーが登録した全てのカードを取得します。
-      # アクションのレスポンスリスト
       responses:
-        # アクションのレスポンス：HTTPステータス200 OK
         "200":
           description: カード一覧の取得に成功しました。
           content:
@@ -207,6 +373,35 @@ components:
         error:
           type: string
           description: 問題が発生した場合のエラーメッセージ。
+
+    CardbookRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: カードブックの名前
+          example: "英単語帳"
+        description:
+          type: string
+          description: カードブックの説明
+          example: "受験用英語の単語帳"
+
+    CardbookResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: カードブックの一意の識別子
+          example: 1
+        name:
+          type: string
+          description: カードブックの名前
+          example: "英単語帳"
+        description:
+          type: string
+          description: カードブックの説明
+          example: "受験用英語の単語帳"
+
     Card:
       type: object
       properties:
