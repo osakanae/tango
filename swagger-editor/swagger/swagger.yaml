@@ -214,37 +214,10 @@ paths:
                     example: "This is the updated description for the cardbook."
         "400":
           description: 無効なリクエスト。
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: エラーメッセージ。
-                    example: "Invalid ID or request body."
         "404":
           description: 指定したIDのカードブックが見つかりません。
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: エラーメッセージ。
-                    example: "Cardbook not found."
         "500":
           description: サーバーエラー。
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: エラーメッセージ。
-                    example: "Internal server error."
     delete:
       tags:
         - Cardbook
@@ -259,7 +232,7 @@ paths:
           description: 削除するカードブックのID。
       responses:
         "200":
-          description: カードブックの削除に成功しました。
+          description: カードブックを削除済みステータスに移動しました。
           content:
             application/json:
               schema:
@@ -269,22 +242,65 @@ paths:
                     type: integer
                     description: 削除されたカードブックのID。
                     example: 1
+        "404":
+          description: 指定されたカードブックが見つかりません。
         "500":
           description: サーバーエラー。
+
+  /api/deleted-cardbooks/{id}:
+    delete:
+      tags:
+        - Deleted Cardbook
+      summary: 削除済みカードブックを完全に削除
+      description: 削除済みカードブックをデータベースから完全に削除します。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 完全に削除するカードブックのID。
+      responses:
+        "204":
+          description: 削除済みカードブックの完全削除に成功しました。
+        "404":
+          description: 指定されたカードブックが見つかりません。
+        "500":
+          description: サーバーエラー。
+
+  /api/deleted-cardbooks:
+    get:
+      tags:
+        - Deleted Cardbook
+      summary: 削除済みカードブックの一覧を取得
+      description: ログインしているユーザーの削除済みカードブックを取得します。
+      responses:
+        "200":
+          description: 削除済みカードブックの取得に成功しました。
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: エラーメッセージ。
-                    example: "Internal server error."
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: カードブックのID。
+                    name:
+                      type: string
+                      description: カードブックの名前。
+                    deleted_date:
+                      type: string
+                      format: date-time
+                      description: 削除日時。
 
-  /api/cards: # エンドポイント
-    get: #アクションのHTTPメソッド
+  /api/cards:
+    get:
       summary: すべてのカードを取得
       description: ログインしているユーザーが登録した全てのカードを取得します。
+      tags:
+        - Card
       responses:
         "200":
           description: カード一覧の取得に成功しました。
@@ -296,6 +312,95 @@ paths:
                   $ref: "#/components/schemas/Card"
         "401":
           description: 認証が必要です。ログインしてください。
+    post:
+      summary: カードを新規作成
+      description: 新しい単語カードを作成します。
+      tags:
+        - Card
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CardRequest"
+      responses:
+        "201":
+          description: カードが正常に作成されました。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CardResponse"
+        "400":
+          description: 入力データが無効です。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: サーバーエラーです。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/cards/{id}:
+    put:
+      tags:
+        - Card
+      summary: カードの更新
+      description: 指定したIDのカードの内容を更新します。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 更新するカードのID。
+      responses:
+        "200":
+          description: カードの更新に成功しました。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: 更新されたカードのID。
+                    example: 1
+                  name:
+                    type: string
+                    description: 更新後のカードの名前。
+                    example: "Updated Card Name"
+                  description:
+                    type: string
+                    description: 更新後のカードの説明。
+                    example: "This is the updated description for the card."
+        "400":
+          description: 無効なリクエスト。
+        "404":
+          description: 指定したIDのカードが見つかりません。
+        "500":
+          description: サーバーエラー。
+    delete:
+      tags:
+        - Card
+      summary: カードを削除
+      description: 指定したIDのカードを削除します。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 削除するカードのID。
+      responses:
+        "204":
+          description: カードの削除に成功しました。
+        "404":
+          description: 指定されたカードが見つかりません。
+        "500":
+          description: サーバーエラー。
 
 components:
   schemas:
@@ -402,7 +507,19 @@ components:
           description: カードブックの説明
           example: "受験用英語の単語帳"
 
-    Card:
+    CardRequest:
+      type: object
+      properties:
+        term:
+          type: string
+          description: 単語やフレーズなど
+          example: "programming"
+        definition:
+          type: string
+          description: 単語の説明または定義
+          example: "The process of creating software."
+
+    CardResponse:
       type: object
       properties:
         id:
