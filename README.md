@@ -1,9 +1,10 @@
-# Tango
+# Tango（開発中）
 ユーザーオリジナルの単語帳アプリです。
 
 ## 使用技術・ツール
-- 設計：draw.io、FigJam、plantUML
+- 設計：FigJam、plantUML、swagger
 - バージョン管理：Git、GitHub
+- IDE：IntelliJ IDEA、Visual Studio Code
 
 ## 使用予定技術・ツール
 - フロントエンド：HTML、CSS、Vue.js
@@ -11,7 +12,6 @@
 - データベース：H2 Database(開発環境)、MySQL(本番環境)
 - インフラ・クラウド：Docker、AWSまたはVPS、ApacheまたはNginx
 - ビルド・自動化ツール：Maven、GitHub Actions
-- IDE：IntelliJ IDEA、Visual Studio Code
 
 ## 開発背景
 基本情報技術者試験・応用情報技術者試験の学習では、基本的に過去問がWeb上で公開されているため、PCで過去問を解き、わからない言葉を調べ、スマホと連動したメモアプリに単語と定義を記す、というやり方で暗記をしていました。しかし、メモアプリでは定義を隠して単語の意味をそらんじる（またはその逆）というような使い方がしづらく、Web上で直感的に使いやすいオリジナル単語帳アプリがあればいいなと考えました。
