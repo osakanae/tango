@@ -9,11 +9,114 @@ servers:
   - url: http://localhost:8080
     description: Local development server
 paths:
-  # リソース
-  /cards: # エンドポイント
+  /auth/register:
+    post:
+      summary: 新規ユーザー登録
+      description: Tangoアプリケーションに新しいユーザーを登録します。
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequestDTO"
+      responses:
+        "201":
+          description: ユーザーが正常に登録されました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResponseDTO"
+        "400":
+          description: リクエストデータが無効です
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: コンフリクト - メールアドレスが既に登録されています
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      summary: ユーザのログイン
+      description: ユーザーを認証し、今後のリクエストに使用するJWTトークンを返します。
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequestDTO"
+      responses:
+        "200":
+          description: ログインに成功しました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponseDTO"
+        "401":
+          description: 認証されていません - 資格情報が無効です
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      summary: ユーザーのログアウト
+      description: 現在のユーザーをログアウトし、セッションまたはトークンを無効化します。
+      tags:
+        - Authentication
+      responses:
+        "200":
+          description: ログアウトに成功しました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          description: 認証エラー - トークンが無効または欠落しています
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/{id}:
+    get:
+      summary: ユーザー情報の取得
+      description: 指定されたIDでユーザーの情報を取得します。
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 取得するユーザーのID。
+      responses:
+        "200":
+          description: ユーザー情報が正常に取得されました。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponseDTO"
+        "404":
+          description: ユーザーが見つかりません。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/cards: # エンドポイント
     get: #アクションのHTTPメソッド
       summary: すべてのカードを取得
-      description: このエンドポイントは、ログインしているユーザーが登録した全てのカードを取得します。
+      description: ログインしているユーザーが登録した全てのカードを取得します。
       # アクションのレスポンスリスト
       responses:
         # アクションのレスポンス：HTTPステータス200 OK
@@ -29,7 +132,81 @@ paths:
           description: 認証が必要です。ログインしてください。
 
 components:
-  schemas: # 再利用可能なスキーマ
+  schemas:
+    RegisterRequestDTO:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: ユーザーのメールアドレス
+        password:
+          type: string
+          format: password
+          description: ユーザーのパスワード
+      required:
+        - email
+        - password
+
+    RegisterResponseDTO:
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: 新規作成されたユーザーのID
+        message:
+          type: string
+          description: 登録確認メッセージ
+
+    LoginRequestDTO:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: ユーザーのメールアドレス
+        password:
+          type: string
+          format: password
+          description: ユーザーのパスワード
+      required:
+        - email
+        - password
+
+    LoginResponseDTO:
+      type: object
+      properties:
+        token:
+          type: string
+          description: 認証されたリクエストに使用する JWT トークン
+        message:
+          type: string
+          description: ログイン成功メッセージ
+
+    UserResponseDTO:
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: ユーザーの一意のID。
+        email:
+          type: string
+          format: email
+          description: ユーザーのメールアドレス。
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: 成功または情報メッセージ。
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: 問題が発生した場合のエラーメッセージ。
     Card:
       type: object
       properties:
