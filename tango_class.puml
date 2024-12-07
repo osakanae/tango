@@ -3,17 +3,15 @@ package user {
     interface UserDetails {
         + getAuthorities(): Collection<GrantedAuthority>
         + getPassword(): String
-        + getUsername(): String
         + isAccountNonExpired(): boolean
         + isAccountNonLocked(): boolean
         + isCredentialsNonExpired(): boolean
         + isEnabled(): boolean
     }
 
-    class User implements UserDetails{
+    class User implements UserDetails {
         - Long id
-        - String username
-        - String emai
+        - String email
         - String password
         - boolean enabled
         - Set<String> role
@@ -31,73 +29,67 @@ package user {
     class UserController {
         - UserService userService
 
-        + login(UserLoginDTO loginDTO): ResponseEntity<LoginResponseDTO>
-        + logout(): ResponseEntity<String>
-        + registerUser(UserDTO userDTO): ResponseEntity<RegisterResponseDTO>
-        + deleteUser(Long userId): ResponseEntity<String>
+        + registerUser(RegisterRequestDTO userDTO): ResponseEntity<RegisterResponseDTO>
         + getUser(Long id): ResponseEntity<UserResponseDTO>
     }
 
-    class UserLoginDTO {
+    class AuthController {
+        - UserService userService
+
+        + login(LoginRequestDTO loginDTO): ResponseEntity<LoginResponseDTO>
+        + logout(): ResponseEntity<String>
+    }
+
+    class LoginRequestDTO {
         - String email
         - String password
+        + Getter/Setter
+    }
 
+    class RegisterRequestDTO {
+        - String email
+        - String password
         + Getter/Setter
     }
 
     class LoginResponseDTO {
         - String token
         - String message
-
-        + Getter/Setter
-    }
-
-    class UserDTO {
-        - String username
-        - String email
-        - String password
-
         + Getter/Setter
     }
 
     class RegisterResponseDTO {
         - Long userId
         - String message
-        - String username
-
         + Getter/Setter
     }
 
     class UserResponseDTO {
         - Long userId
-        - String username
         - String email
-
         + Getter/Setter
     }
 
     class UserService {
         - UserRepository userRepository
 
-        + authenticate(UserLoginDTO loginDTO): LoginResponseDTO
-        + registerUser(UserDTO userDTO): RegisterResponseDTO
+        + authenticate(LoginRequestDTO loginDTO): LoginResponseDTO
+        + registerUser(RegisterRequestDTO userDTO): RegisterResponseDTO
         + deleteUser(Long userId): void
     }
 
     interface UserDetailsService {
-        + loadUserByUsername(String username): UserDetails
+        + loadUserByUsername(String email): UserDetails
     }
 
     class CustomUserDetailsService implements UserDetailsService {
         - UserRepository userRepository
 
-        + loadUserByUsername(String username): UserDetails
+        + loadUserByUsername(String email): UserDetails
     }
 
     class UserRepository {
-        + findByUsername(String username): Optional<User>
-        + findByEmail(String email): Optional<User>
-        + findByUsernameOrEmail(String username, String email): Optional<User>
+        + findByEmail(String email): Optional<User> // Email must be unique
     }
 }
 
@@ -296,11 +288,11 @@ Cardbook "1" --> "0..*" ImportHistory
 UserController --> UserService
 UserService --> UserRepository
 CustomUserDetailsService --> UserRepository
-UserController --> UserLoginDTO
+UserController --> UserDTO
 UserController --> LoginResponseDTO
 UserController --> RegisterResponseDTO
 UserController --> UserResponseDTO
-UserService --> UserLoginDTO
+UserService --> UserDTO
 UserService --> UserDTO
 UserService --> RegisterResponseDTO
 
