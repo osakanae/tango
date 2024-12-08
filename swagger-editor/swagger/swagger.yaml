@@ -513,6 +513,93 @@ paths:
         "500":
           description: サーバーエラーが発生した場合。
 
+  /api/cardbooks/import:
+    post:
+      tags:
+        - Cardbook
+      summary: インポート
+      description: 指定したカードブックにCSVファイルをインポートします。
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                cardbookId:
+                  type: integer
+                  description: インポート対象のカードブックID。
+                file:
+                  type: string
+                  format: binary
+                  description: インポートするCSVファイル。
+      responses:
+        "200":
+          description: 成功時にインポート結果が返されます。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  successCount:
+                    type: integer
+                    description: インポートに成功したカードの数。
+                  failedCount:
+                    type: integer
+                    description: インポートに失敗したカードの数。
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        row:
+                          type: integer
+                          description: エラーが発生した行番号。
+                        message:
+                          type: string
+                          description: エラーメッセージ。
+        "400":
+          description: リクエストが無効な場合 (例:ファイル形式がCSVではない、必須フィールドが欠落している)。
+        "404":
+          description: 指定されたカードブックが存在しない場合。
+        "500":
+          description: サーバーエラーが発生した場合。
+
+  /api/public/cards/{id}:
+    get:
+      tags:
+        - Public
+      summary: カード閲覧(ログイン不要)
+      description: ログイン不要でカードを閲覧します。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 閲覧対象のカードブックID。
+      responses:
+        "200":
+          description: 指定されたカードブックのカードが正常に取得されました。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cardbookId:
+                    type: integer
+                    description: カードブックID。
+                  cards:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CardResponse"
+        "400":
+          description: リクエストが無効な場合 (例:IDが存在しない、または形式が不正)。
+        "404":
+          description: 指定されたカードブックが存在しない場合。
+        "500":
+          description: サーバーエラーが発生した場合。
+
 components:
   schemas:
     RegisterRequestDTO:
