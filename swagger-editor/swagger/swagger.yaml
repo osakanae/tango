@@ -309,7 +309,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Card"
+                  $ref: "#/components/schemas/CardResponse"
         "401":
           description: 認証が必要です。ログインしてください。
     post:
@@ -401,6 +401,117 @@ paths:
           description: 指定されたカードが見つかりません。
         "500":
           description: サーバーエラー。
+
+  /api/cards/search:
+    get:
+      tags:
+        - Card
+      summary: カード検索
+      description: 指定したキーワードでカードを検索します。
+      parameters:
+        - name: keyword
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 検索するキーワード。単語または定義の部分一致で検索されます。
+      responses:
+        "200":
+          description: 検索結果を返します。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalCount:
+                    type: integer
+                    description: 検索結果の総数。
+                    example: 25
+                  currentPage:
+                    type: integer
+                    description: 現在のページ番号。
+                    example: 1
+                  totalPages:
+                    type: integer
+                    description: 総ページ数。
+                    example: 3
+                  cards:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CardResponse"
+        "400":
+          description: 無効なリクエストパラメータ。
+        "500":
+          description: サーバーエラー。
+
+  /api/cards/{id}/memorization:
+    put:
+      tags:
+        - Card
+      summary: 暗記度管理
+      description: 暗記度を三段階（0：未記憶, 1：部分的に記憶, 2：完全記憶）で管理します。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 暗記度を更新するカードのID。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                memorizationLevel:
+                  type: integer
+                  enum: [0, 1, 2]
+                  description: 更新する暗記度レベル（0：未記憶, 1：部分的に記憶, 2：完全記憶）。
+                  example: 1
+              required:
+                - memorizationLevel
+      responses:
+        "200":
+          description: 暗記度の更新に成功しました。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CardResponse"
+        "400":
+          description: 無効なリクエスト（例：不正な暗記度レベル）。
+        "404":
+          description: 指定されたカードが見つかりません。
+        "500":
+          description: サーバーエラー。
+
+  /api/cardbooks/{id}/export:
+    get:
+      tags:
+        - Cardbook
+      summary: エクスポート
+      description: 指定したIDのカードブックの内容をCSV形式でエクスポートします。
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: エクスポート対象のカードブックID。
+      responses:
+        "200":
+          description: 成功時にCSV形式のファイルが返されます。
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: リクエストが無効な場合 (例:IDが存在しない場合)。
+        "404":
+          description: 指定されたIDのカードブックが存在しない場合。
+        "500":
+          description: サーバーエラーが発生した場合。
 
 components:
   schemas:
