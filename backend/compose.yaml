@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8081"
+    volumes:
+      - .:/app    # ローカル全体をコンテナの /app にマウント
+      - /app/target  # /app/target を匿名ボリュームとして再定義（ローカル同期を解除）。これでローカルの target ディレクトリのマウントを防ぐ
+    command: ./mvnw spring-boot:run

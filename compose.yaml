@@ -1,9 +1,0 @@
-services:
-  web:
-    image: openjdk:18
-    command : .mvnw spring-boot:run
-    ports:
-      - "8081:8080"
-    volumes:
-      - ./backend:/backend
-    working_dir: /backend
