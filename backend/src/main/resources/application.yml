@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: Tango
+  profiles:
+    active: dev # デフォルトでは開発環境を使用
+  security:
+    enabled: false
+  datasource:
+    driver-class-name: org.h2.Driver # デフォルトではH2を設定
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+
+server:
+  port: 8081
+
+---
+spring:
+  profiles: dev
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+
+---
+spring:
+  profiles: prod
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://db:3306/mydb
+    username: prod_user
+    password: prod_password
+
+
