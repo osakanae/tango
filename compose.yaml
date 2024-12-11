@@ -1,0 +1,9 @@
+services:
+  web:
+    image: openjdk:22
+    command : .mvnw spring-boot:run
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./tango:/tango
+    working_dir: /tango
