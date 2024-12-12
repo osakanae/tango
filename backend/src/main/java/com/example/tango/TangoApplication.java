@@ -13,9 +13,4 @@ public class TangoApplication {
 		SpringApplication.run(TangoApplication.class, args);
 	}
 
-	@RequestMapping("/")
-	public String hello() {
-		return "Hello Spring Boot on Docker";
-	}
-
 }
